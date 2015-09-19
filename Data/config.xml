@@ -1,0 +1,16 @@
+<Data>
+
+  <Breaks>
+    <Break Start="11:45:00" End="12:15:00" />
+  </Breaks>
+
+  <Categories>
+
+    <Category>Project A</Category>
+    <Category>Project B</Category>
+    <Category>Project C</Category>
+
+  </Categories>
+  
+  
+</Data>
