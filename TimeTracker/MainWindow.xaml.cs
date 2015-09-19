@@ -38,8 +38,11 @@ namespace TimeTracker
         public DateTime StartDate;
         private List< Tuple< DateTime, DateTime > > _breaks;
 
+        public ICommand LogTimeCommand { get; set; }
+
         public MainWindow(ITimeProvider provider)
         {
+            LogTimeCommand = new DelegateCommand( ActionLogTime );
             _provider = provider;
             DataContext = this;
             var doc = XDocument.Load( "config.xml" );
@@ -109,6 +112,7 @@ namespace TimeTracker
         private void Button_Click( object sender, RoutedEventArgs e )
         {
             ( sender as Button ).IsEnabled = false;
+            AddButton.IsEnabled = true;
 
 
             _work.Add( Tuple.Create( "Start",  DateTime.Parse( startTime.Text ) ) );
@@ -123,9 +127,9 @@ namespace TimeTracker
             list.IsEnabled = true;
         }
 
-        private void ButtonBase_OnClick( object sender, RoutedEventArgs e )
+        private void ActionLogTime( object workName )
         {
-            _work.Add( Tuple.Create( (sender as Button).Content.ToString(), _provider.GetCurrentTime()) );
+            _work.Add( Tuple.Create( workName.ToString(), _provider.GetCurrentTime()) );
 
             _addLast();
             
@@ -247,6 +251,18 @@ namespace TimeTracker
 
 
             output.Divide();
+
+        }
+
+        private void Add_And_Bill_Click( object sender, RoutedEventArgs e )
+        {
+            Cats.Add( newJob.Text );
+          
+            ActionLogTime( newJob.Text );
+
+            list.SelectedIndex = list.Items.Count - 1;
+            list.ScrollIntoView( list.SelectedItem );
+            newJob.Text = "";
 
         }
     }
