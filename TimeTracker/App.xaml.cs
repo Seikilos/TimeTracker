@@ -18,7 +18,9 @@ namespace TimeTracker
             base.OnStartup( e );
 
 
-            var m = new MainWindow();
+            var provider = new DummyCurrentTimeProvider();
+
+            var m = new MainWindow(provider);
             m.Show();
 
         }
