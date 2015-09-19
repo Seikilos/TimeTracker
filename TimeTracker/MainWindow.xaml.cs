@@ -198,6 +198,57 @@ namespace TimeTracker
             return t;
 
         }
+
+        private void Button_Click_Summary( object sender, RoutedEventArgs e )
+        {
+            if ( _work.Any() == false )
+            {
+                output.AppendNewLine( "You did not work yet" );
+                return;
+            }
+
+            output.Divide();
+            output.AppendNewLine( "Start at {0}", _work.First().Item2 );
+
+            if ( _work.Count < 2 )
+            {
+                output.AppendNewLine( "You did not log any work yet" );
+            }
+
+            var workTime = _hadBreak( _work.First().Item2, _work.Last().Item2 );
+
+            output.AppendNewLine( "Ended at {0}, worked {1}", _work.Last().Item2, (_work.Last().Item2-_work.First().Item2 ).Duration() - workTime);
+
+            var jobs = new Dictionary< string, TimeSpan >();
+
+            for ( var i = 1; i < _work.Count; ++i )
+            {
+                var before = _work[ i - 1 ];
+                var current = _work[ i ];
+
+                if ( jobs.ContainsKey( current.Item1 ) == false )
+                {
+                    jobs[current.Item1] = TimeSpan.Zero;
+                }
+
+                var breaks = _hadBreak( before.Item2, current.Item2 );
+
+                var dur = ( current.Item2 - before.Item2 ).Duration() - breaks;
+
+                jobs[ current.Item1 ] = jobs[ current.Item1 ].Add( dur );
+
+
+            }
+
+            foreach ( var job in jobs )
+            {
+                output.AppendNewLine( "{0} for {1}", job.Key, job.Value );
+            }
+
+
+            output.Divide();
+
+        }
     }
 
     public static class Extensions
@@ -205,6 +256,13 @@ namespace TimeTracker
         public static void AppendNewLine( this TextBoxBase tb, string text, params object[] args )
         {
             tb.AppendText( string.Format( text + Environment.NewLine, args ) );
+
+            tb.ScrollToEnd();
+        }
+
+        public static void Divide( this TextBoxBase tb )
+        {
+            tb.AppendNewLine( "--------------------------" );
         }
     }
 }
