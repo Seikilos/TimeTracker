@@ -56,12 +56,13 @@ namespace TimeTracker
                 Cats.Add( "Project "+i );
             }
 
-         
+
 
 
             InitializeComponent();
 
-               foreach ( var b in _breaks )
+
+            foreach ( var b in _breaks )
             {
                 output.AppendNewLine( string.Format( "Break from {0} ended at {1}", b.Item1, b.Item2 ) );
             }
@@ -264,6 +265,36 @@ namespace TimeTracker
             list.ScrollIntoView( list.SelectedItem );
             newJob.Text = "";
 
+        }
+
+        private void Real_Exit( object sender, RoutedEventArgs e )
+        {
+
+            var res = MessageBox.Show( this, "Are you sure?", "Really exit?", MessageBoxButton.YesNo );
+ 
+            if ( res == MessageBoxResult.No )
+            {
+                return;
+            }
+            Application.Current.Shutdown( 0 );
+
+
+        }
+
+        private void Window_Closing( object sender, System.ComponentModel.CancelEventArgs e )
+        {
+            e.Cancel = true;
+            Hide();
+        }
+
+        private void Open_Click( object sender, RoutedEventArgs e )
+        {
+           Show();
+        }
+
+        private void myNotifyIcon_TrayMouseDoubleClick( object sender, RoutedEventArgs e )
+        {
+            Show();
         }
     }
 
