@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,6 +20,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using NodaTime;
 using NodaTime.Text;
+using Path = System.IO.Path;
 
 namespace TimeTracker
 {
@@ -39,6 +41,11 @@ namespace TimeTracker
         private List< Tuple< DateTime, DateTime > > _breaks;
 
         public ICommand LogTimeCommand { get; set; }
+
+        private FileStream _progressFile;
+        private StreamWriter _progressFileStream;
+        private FileStream _summaryFile;
+        private StreamWriter _summaryFileStream;
 
         public MainWindow(ITimeProvider provider)
         {
@@ -64,7 +71,7 @@ namespace TimeTracker
 
             foreach ( var b in _breaks )
             {
-                output.AppendNewLine( string.Format( "Break from {0} ended at {1}", b.Item1, b.Item2 ) );
+                output(string.Format( "Break from {0} ended at {1}", b.Item1, b.Item2 ) );
             }
 
 
@@ -97,6 +104,33 @@ namespace TimeTracker
 
         }
 
+        private void output(string format, params object[] args)
+        {
+            _output.AppendNewLine(format, args);
+            _progressFileStream.WriteLine(format, args);
+            _progressFileStream.Flush();
+
+        }
+        private void summary( string format, params object[] args )
+        {
+            _output.AppendNewLine( format, args );
+            _summaryFileStream.WriteLine( format, args );
+            _summaryFileStream.Flush();
+        }
+
+        private void summaryDivide(  )
+        {
+
+            _output.Divide();
+            _summaryFileStream.WriteLine( "----------------------" );
+        }
+
+        private void outputDivide(  )
+        {
+            _output.Divide();
+            _progressFileStream.WriteLine( "----------------------" );
+        }
+
         private void ErrorFunc( Task obj )
         {
             if ( obj.IsFaulted )
@@ -105,21 +139,28 @@ namespace TimeTracker
             }
         }
 
+      
+
         private void startTime_GotFocus( object sender, RoutedEventArgs e )
         {
             _doNotUpdate = true;
         }
 
-        private void Button_Click( object sender, RoutedEventArgs e )
+        private void Start_Button_Click( object sender, RoutedEventArgs e )
         {
             ( sender as Button ).IsEnabled = false;
             AddButton.IsEnabled = true;
 
+            _progressFile = new FileStream( Path.Combine("Work", _provider.GetCurrentTime().ToString( "YYYY_MM_dd_HH_mm_ss.log" )), FileMode.Create);
+            _progressFileStream = new StreamWriter(_progressFile);
+            _summaryFile = new FileStream( Path.Combine("Work", _provider.GetCurrentTime().ToString( "YYYY_MM_dd_HH_mm_ss.log" )), FileMode.Create );
+            _summaryFileStream = new StreamWriter(_summaryFile);
 
             _work.Add( Tuple.Create( "Start",  DateTime.Parse( startTime.Text ) ) );
          
 
-            output.AppendNewLine( "Starting at "  + _work[0].Item2);
+            output( "Starting at "  + _work[0].Item2);
+
 
 
 
@@ -150,7 +191,7 @@ namespace TimeTracker
             ts = ts.Subtract( hadBreak );
             
 
-            output.AppendNewLine( "{0} to {1}, total {2}{3}", last.Item1, last.Item2,ts.ToString(@"hh\:mm\:ss"), (hadBreak != TimeSpan.Zero? string.Format(", subtracted {0} break", hadBreak.ToString(@"hh\:mm\:ss")):"") );
+            output( "{0} to {1}, total {2}{3}", last.Item1, last.Item2,ts.ToString(@"hh\:mm\:ss"), (hadBreak != TimeSpan.Zero? string.Format(", subtracted {0} break", hadBreak.ToString(@"hh\:mm\:ss")):"") );
         }
 
         private TimeSpan _hadBreak( DateTime startTime, DateTime endTime )
@@ -208,21 +249,21 @@ namespace TimeTracker
         {
             if ( _work.Any() == false )
             {
-                output.AppendNewLine( "You did not work yet" );
+                summary( "You did not work yet" );
                 return;
             }
 
-            output.Divide();
-            output.AppendNewLine( "Start at {0}", _work.First().Item2 );
+            summaryDivide();
+            summary( "Start at {0}", _work.First().Item2 );
 
             if ( _work.Count < 2 )
             {
-                output.AppendNewLine( "You did not log any work yet" );
+                summary( "You did not log any work yet" );
             }
 
             var workTime = _hadBreak( _work.First().Item2, _work.Last().Item2 );
 
-            output.AppendNewLine( "Ended at {0}, worked {1}", _work.Last().Item2, (_work.Last().Item2-_work.First().Item2 ).Duration() - workTime);
+            summary( "Ended at {0}, worked {1}", _work.Last().Item2, (_work.Last().Item2-_work.First().Item2 ).Duration() - workTime);
 
             var jobs = new Dictionary< string, TimeSpan >();
 
@@ -247,11 +288,11 @@ namespace TimeTracker
 
             foreach ( var job in jobs )
             {
-                output.AppendNewLine( "{0} for {1}", job.Key, job.Value );
+                summary( "{0} for {1}", job.Key, job.Value );
             }
 
 
-            output.Divide();
+           summaryDivide();
 
         }
 
@@ -305,6 +346,8 @@ namespace TimeTracker
             tb.AppendText( string.Format( text + Environment.NewLine, args ) );
 
             tb.ScrollToEnd();
+
+            
         }
 
         public static void Divide( this TextBoxBase tb )

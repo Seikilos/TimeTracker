@@ -25,7 +25,7 @@
 
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
-            <Button Margin="5,0" Click="Button_Click">Start</Button>
+            <Button Margin="5,0" Click="Start_Button_Click">Start</Button>
             <Button>Stop</Button>
             <Button Click="Button_Click_Summary" Margin="5,0">Summary</Button>
         </StackPanel>
@@ -48,7 +48,7 @@
             <Button Margin="5,0" Click="Add_And_Bill_Click"  Name="AddButton" IsEnabled="False" IsDefault="True">Add and Bill</Button>
 
         </StackPanel>
-        <TextBox Margin="0,5,0,0"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="output"></TextBox>
+        <TextBox Margin="0,5,0,0"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
 
     </DockPanel>
 </Window>
