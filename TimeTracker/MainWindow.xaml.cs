@@ -18,8 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using NodaTime;
-using NodaTime.Text;
+
 using Path = System.IO.Path;
 
 namespace TimeTracker
@@ -52,6 +51,9 @@ namespace TimeTracker
             LogTimeCommand = new DelegateCommand( ActionLogTime );
             _provider = provider;
             DataContext = this;
+
+            Directory.CreateDirectory( "Work" );
+
             var doc = XDocument.Load( "config.xml" );
             _breaks = doc.XPathSelectElements( "//Break" ).Select( e => Tuple.Create(
                 DateTime.Parse( e.Attribute( "Start" ).Value ),
@@ -107,15 +109,21 @@ namespace TimeTracker
         private void output(string format, params object[] args)
         {
             _output.AppendNewLine(format, args);
-            _progressFileStream.WriteLine(format, args);
-            _progressFileStream.Flush();
+            if ( _progressFileStream != null )
+            {
+                _progressFileStream.WriteLine( format, args );
+                _progressFileStream.Flush();
+            }
 
         }
         private void summary( string format, params object[] args )
         {
             _output.AppendNewLine( format, args );
-            _summaryFileStream.WriteLine( format, args );
-            _summaryFileStream.Flush();
+            if ( _summaryFileStream != null )
+            {
+                _summaryFileStream.WriteLine( format, args );
+                _summaryFileStream.Flush();
+            }
         }
 
         private void summaryDivide(  )
@@ -151,10 +159,14 @@ namespace TimeTracker
             ( sender as Button ).IsEnabled = false;
             AddButton.IsEnabled = true;
 
-            _progressFile = new FileStream( Path.Combine("Work", _provider.GetCurrentTime().ToString( "YYYY_MM_dd_HH_mm_ss.log" )), FileMode.Create);
+            _progressFile = new FileStream( Path.Combine("Work", DateTime.Parse( startTime.Text ).ToString( "'Work'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create);
             _progressFileStream = new StreamWriter(_progressFile);
-            _summaryFile = new FileStream( Path.Combine("Work", _provider.GetCurrentTime().ToString( "YYYY_MM_dd_HH_mm_ss.log" )), FileMode.Create );
+            _summaryFile = new FileStream( Path.Combine("Work", DateTime.Parse( startTime.Text ).ToString( "'Summary'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create );
             _summaryFileStream = new StreamWriter(_summaryFile);
+
+            output( "Work logged to {0}", _progressFile.Name  );
+            output( "Summary logged to {0}", _summaryFile.Name  );
+
 
             _work.Add( Tuple.Create( "Start",  DateTime.Parse( startTime.Text ) ) );
          
