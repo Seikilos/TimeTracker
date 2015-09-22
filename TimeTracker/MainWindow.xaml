@@ -4,7 +4,7 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         Title="MainWindow" Height="350" Width="525" Closing="Window_Closing" >
-    
+
     <Window.Resources>
 
         <CollectionViewSource x:Key="jobsVS" Source="{Binding Path=Cats}">
@@ -14,9 +14,18 @@
 
         </CollectionViewSource>
     </Window.Resources>
-    
-    <DockPanel Margin="2">
-        
+
+    <Grid Margin="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Height="Auto">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Name="splitter" Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
         <tb:TaskbarIcon x:Name="myNotifyIcon"
                     Visibility="Visible"
                     ToolTipText="Time Tracker"
@@ -35,15 +44,26 @@
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
 
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
             <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
             <Button Margin="5,0" Click="Start_Button_Click">Start</Button>
             <Button>Stop</Button>
             <Button Click="Button_Click_Summary" Margin="5,0">Summary</Button>
         </StackPanel>
-        
-      
-        <ListView DockPanel.Dock="Bottom" Name="list" Margin="0,5" ItemsSource="{Binding Source={StaticResource jobsVS}}" Height="100">
+
+        <TextBox Margin="0,5,0,0" Grid.Row="1"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
+
+        <GridSplitter HorizontalAlignment="Stretch" Height="3" Grid.Row="2" Background="LightGray"></GridSplitter>
+
+        <StackPanel Margin="0,5"  Grid.Row="3" Orientation="Horizontal">
+            <Label>New Task</Label>
+            <TextBox Name="newJob" Width="200"></TextBox>
+            <Button Margin="5,0" Click="Add_And_Bill_Click"  Name="AddButton" IsEnabled="False" IsDefault="True">Add and Bill</Button>
+
+        </StackPanel>
+
+
+        <ListView  Grid.Row="4" Name="list" Margin="0,5" ItemsSource="{Binding Source={StaticResource jobsVS}}" Height="Auto">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Button Content="{Binding}" Command="{Binding DataContext.LogTimeCommand,
@@ -54,13 +74,5 @@
             </ListView.ItemTemplate>
 
         </ListView>
-        <StackPanel Margin="0,5"  DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <Label>New Task</Label>
-            <TextBox Name="newJob" Width="200"></TextBox>
-            <Button Margin="5,0" Click="Add_And_Bill_Click"  Name="AddButton" IsEnabled="False" IsDefault="True">Add and Bill</Button>
-
-        </StackPanel>
-        <TextBox Margin="0,5,0,0"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
-
-    </DockPanel>
+    </Grid>
 </Window>
