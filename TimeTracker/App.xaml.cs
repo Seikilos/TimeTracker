@@ -18,8 +18,11 @@ namespace TimeTracker
             base.OnStartup( e );
 
 
+#if DEBUG
             var provider = new DummyCurrentTimeProvider();
-
+#else
+            var provider = new StandardCurrentTimeProvider();
+#endif
             var m = new MainWindow(provider);
             m.Show();
 

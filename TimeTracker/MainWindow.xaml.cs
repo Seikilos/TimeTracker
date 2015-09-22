@@ -58,12 +58,15 @@ namespace TimeTracker
             _breaks = doc.XPathSelectElements( "//Break" ).Select( e => Tuple.Create(
                 DateTime.Parse( e.Attribute( "Start" ).Value ),
                 DateTime.Parse( e.Attribute( "End" ).Value ) ) ).ToList();
-            Cats = new ObservableCollection< string >(doc.XPathSelectElements( "//Category" ).Select( e => e.Value ).ToList());
 
-            for ( var i = 0; i < 10; ++i )
+            var catList = doc.XPathSelectElements("//Category").Select(e => e.Value).ToList();
+            Cats = new ObservableCollection< string >(catList);
+            
+
+           /* for ( var i = 0; i < 10; ++i )
             {
                 Cats.Add( "Project "+i );
-            }
+            }*/
 
 
 
@@ -81,10 +84,10 @@ namespace TimeTracker
 
 
             // Disable updater for now, fake time
-            {
+           /* {
                 startTime.Text = "8:00";
                 _doNotUpdate = true;
-            }
+            }*/
 
             //_doNotUpdate = false;
             _updater = Task.Run( () =>

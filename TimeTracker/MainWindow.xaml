@@ -2,7 +2,19 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         Title="MainWindow" Height="350" Width="525" Closing="Window_Closing" >
+    
+    <Window.Resources>
+
+        <CollectionViewSource x:Key="jobsVS" Source="{Binding Path=Cats}">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription />
+            </CollectionViewSource.SortDescriptions>
+
+        </CollectionViewSource>
+    </Window.Resources>
+    
     <DockPanel Margin="2">
         
         <tb:TaskbarIcon x:Name="myNotifyIcon"
@@ -31,7 +43,7 @@
         </StackPanel>
         
       
-        <ListView DockPanel.Dock="Bottom" Name="list" Margin="0,5" ItemsSource="{Binding Cats}" Height="100">
+        <ListView DockPanel.Dock="Bottom" Name="list" Margin="0,5" ItemsSource="{Binding Source={StaticResource jobsVS}}" Height="100">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Button Content="{Binding}" Command="{Binding DataContext.LogTimeCommand,
