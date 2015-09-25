@@ -62,12 +62,13 @@ namespace TimeTracker
             var catList = doc.XPathSelectElements("//Category").Select(e => e.Value).ToList();
             Cats = new ObservableCollection< string >(catList);
             
+#if DEBUG
 
-           /* for ( var i = 0; i < 10; ++i )
+            for ( var i = 0; i < 10; ++i )
             {
                 Cats.Add( "Project "+i );
-            }*/
-
+            }
+#endif
 
 
 
