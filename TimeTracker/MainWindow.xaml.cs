@@ -34,7 +34,7 @@ namespace TimeTracker
 
         public ObservableCollection<string> Cats { get; set; }
 
-        private List<Tuple<string, DateTime>> _work = new List< Tuple< string, DateTime > >();
+        private List< Tuple< string, DateTime > > _work;
 
         public DateTime StartDate;
         private List< Tuple< DateTime, DateTime > > _breaks;
@@ -140,7 +140,10 @@ namespace TimeTracker
         private void outputDivide(  )
         {
             _output.Divide();
-            _progressFileStream.WriteLine( "----------------------" );
+            if(_progressFileStream != null)
+            { 
+                _progressFileStream.WriteLine( "----------------------" );
+            }
         }
 
         private void ErrorFunc( Task obj )
@@ -172,17 +175,20 @@ namespace TimeTracker
             output( "Summary logged to {0}", _summaryFile.Name  );
 
 
+            _work = new List< Tuple< string, DateTime > >();
             _work.Add( Tuple.Create( "Start",  DateTime.Parse( startTime.Text ) ) );
          
 
             output( "Starting at "  + _work[0].Item2);
 
+            SummaryButton.IsEnabled = true;
 
 
 
             _doNotUpdate = true;
             startTime.IsEnabled = false;
             list.IsEnabled = true;
+            StopButton.IsEnabled = true;
         }
 
         private void ActionLogTime( object workName )
@@ -352,6 +358,29 @@ namespace TimeTracker
         private void myNotifyIcon_TrayMouseDoubleClick( object sender, RoutedEventArgs e )
         {
             Show();
+        }
+
+        private void Stop_Click( object sender, RoutedEventArgs e )
+        {
+
+            Button_Click_Summary(this, e);
+            _progressFileStream.Dispose();
+            _summaryFile.Dispose();
+            _progressFileStream = null;
+            _summaryFile = null;
+
+
+            output("Stopped");
+            outputDivide();
+            StartButton.IsEnabled = true;
+            StopButton.IsEnabled = false;
+            SummaryButton.IsEnabled = false;
+
+            _doNotUpdate = false;
+            startTime.IsEnabled = true;
+            list.IsEnabled = false;
+            
+
         }
     }
 

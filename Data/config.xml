@@ -2,14 +2,22 @@
 
   <Breaks>
     <Break Start="11:45:00" End="12:15:00" />
-    <Break Start="4:0:00 PM" End="4:15:00 PM" />
+    <!--<Break Start="4:0:00 PM" End="4:15:00 PM" /> -->
   </Breaks>
 
   <Categories>
 
-    <Category>Project A</Category>
-    <Category>Project B</Category>
-    <Category>Project C</Category>
+    <Category>A400M</Category>
+    <Category>DBGS Nachgenerierung</Category>
+    <Category>DBGS SVC (ENC, Jo&amp;Sa</Category>
+    <Category>DBGS Repo Umstellung</Category>
+    <Category>DBGS Support</Category>
+    <Category>Allgemein</Category>
+    <Category>DMT</Category>
+    <Category>Task Force Visual</Category>
+    <Category>CQM</Category>
+    <Category>Admin</Category>
+
 
   </Categories>
   

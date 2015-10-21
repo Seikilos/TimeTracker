@@ -15,20 +15,37 @@
         </CollectionViewSource>
     </Window.Resources>
     
-    <ScrollViewer>
+   <Grid>
+       
+       <Grid.RowDefinitions>
+           <RowDefinition Height="Auto" />
+           <RowDefinition Height="*" />
+       </Grid.RowDefinitions>
+        
+        <ToolBarTray Grid.Row="0">
+        <ToolBar>
+           
+                <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
+                <Button Margin="5,0" Click="Start_Button_Click" Name="StartButton">Start</Button>
+                <Button Click="Stop_Click" IsEnabled="False" Name="StopButton">Stop</Button>
+                <Button Click="Button_Click_Summary" Margin="5,0" Name="SummaryButton">Summary</Button>
+         
+        </ToolBar>
+        </ToolBarTray>
+        <ScrollViewer Grid.Row="1">
 
-    <Grid Margin="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Height="Auto">
+            <Grid Margin="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Height="Auto">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Name="splitter" Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Name="splitter" Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
 
-        <tb:TaskbarIcon x:Name="myNotifyIcon"
+                <tb:TaskbarIcon x:Name="myNotifyIcon"
                     Visibility="Visible"
                     ToolTipText="Time Tracker"
                     IconSource="/TimeTracker.ico"
@@ -38,45 +55,42 @@
                     PopupActivation="DoubleClick" TrayMouseDoubleClick="myNotifyIcon_TrayMouseDoubleClick"   
                         
       >
-            <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Open" Click="Open_Click" />
-                    <MenuItem Header="Exit" Click="Real_Exit" />
-                </ContextMenu>
-            </tb:TaskbarIcon.ContextMenu>
-        </tb:TaskbarIcon>
+                    <tb:TaskbarIcon.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Open" Click="Open_Click" />
+                            <MenuItem Header="Exit" Click="Real_Exit" />
+                        </ContextMenu>
+                    </tb:TaskbarIcon.ContextMenu>
+                </tb:TaskbarIcon>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
-            <Button Margin="5,0" Click="Start_Button_Click">Start</Button>
-            <Button>Stop</Button>
-            <Button Click="Button_Click_Summary" Margin="5,0">Summary</Button>
-        </StackPanel>
+              
+                <TextBox Margin="0,5,0,0" Grid.Row="1"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
 
-        <TextBox Margin="0,5,0,0" Grid.Row="1"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
+                <GridSplitter HorizontalAlignment="Stretch" Height="3" Grid.Row="2" Background="LightGray"></GridSplitter>
 
-        <GridSplitter HorizontalAlignment="Stretch" Height="3" Grid.Row="2" Background="LightGray"></GridSplitter>
+                <StackPanel Margin="0,5"  Grid.Row="3" Orientation="Horizontal">
+                    <Label>New Task</Label>
+                    <TextBox Name="newJob" Width="200"></TextBox>
+                    <Button Margin="5,0" Click="Add_And_Bill_Click"  Name="AddButton" IsEnabled="False" IsDefault="True">Add and Bill</Button>
 
-        <StackPanel Margin="0,5"  Grid.Row="3" Orientation="Horizontal">
-            <Label>New Task</Label>
-            <TextBox Name="newJob" Width="200"></TextBox>
-            <Button Margin="5,0" Click="Add_And_Bill_Click"  Name="AddButton" IsEnabled="False" IsDefault="True">Add and Bill</Button>
+                </StackPanel>
 
-        </StackPanel>
 
-        
 
-        <ListView  Grid.Row="4" Name="list" Margin="0,5" ItemsSource="{Binding Source={StaticResource jobsVS}}" Height="Auto">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Button Content="{Binding}" Command="{Binding DataContext.LogTimeCommand,
+                <ListView  Grid.Row="4" Name="list" Margin="0,5" ItemsSource="{Binding Source={StaticResource jobsVS}}" Height="Auto">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding}" Command="{Binding DataContext.LogTimeCommand,
          RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}"></Button>
 
-                </DataTemplate>
+                        </DataTemplate>
 
-            </ListView.ItemTemplate>
+                    </ListView.ItemTemplate>
 
-        </ListView>
+                </ListView>
+            </Grid>
+        </ScrollViewer>
     </Grid>
-    </ScrollViewer>
+
+
 </Window>
