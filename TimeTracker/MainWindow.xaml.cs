@@ -358,6 +358,7 @@ namespace TimeTracker
         private void myNotifyIcon_TrayMouseDoubleClick( object sender, RoutedEventArgs e )
         {
             Show();
+            Activate();
         }
 
         private void Stop_Click( object sender, RoutedEventArgs e )
