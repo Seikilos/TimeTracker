@@ -37,7 +37,13 @@ namespace TimeTracker
         private List< Tuple< string, DateTime > > _work;
 
         public DateTime StartDate;
-        private List< Tuple< DateTime, DateTime > > _breaks;
+        
+
+        /// <summary>
+        /// Keeps xml nodes which are transformed to date to ensure date time is always 
+        /// the proper day so that the app can be used continuously
+        /// </summary>
+        private List< XElement > _breakElements; 
 
         public ICommand LogTimeCommand { get; set; }
 
@@ -55,10 +61,9 @@ namespace TimeTracker
             Directory.CreateDirectory( "Work" );
 
             var doc = XDocument.Load( "config.xml" );
-            _breaks = doc.XPathSelectElements( "//Break" ).Select( e => Tuple.Create(
-                DateTime.Parse( e.Attribute( "Start" ).Value ),
-                DateTime.Parse( e.Attribute( "End" ).Value ) ) ).ToList();
+            _breakElements = doc.XPathSelectElements("//Break").ToList();
 
+         
             var catList = doc.XPathSelectElements("//Category").Select(e => e.Value).ToList();
             Cats = new ObservableCollection< string >(catList);
             
@@ -75,10 +80,7 @@ namespace TimeTracker
             InitializeComponent();
 
 
-            foreach ( var b in _breaks )
-            {
-                output(string.Format( "Break from {0} ended at {1}", b.Item1, b.Item2 ) );
-            }
+            _dumpBreaks();
 
 
             list.IsEnabled = false;
@@ -108,6 +110,26 @@ namespace TimeTracker
                 }
             } ).ContinueWith( ErrorFunc );
 
+        }
+
+        /// <summary>
+        /// Performs a non-cached conversion from breaks to current date to avoid stalled dates for next days
+        /// </summary>
+        /// <returns></returns>
+        private List<Tuple<DateTime, DateTime> > _getBreaks()
+        {
+            return _breakElements.Select( e => Tuple.Create(
+              DateTime.Parse( e.Attribute( "Start" ).Value ),
+              DateTime.Parse( e.Attribute( "End" ).Value ) ) ).ToList();
+
+        }
+
+        private void _dumpBreaks()
+        {
+            foreach ( var b in _getBreaks() )
+            {
+                output(string.Format("Break from {0} ended at {1}", b.Item1, b.Item2));
+            }
         }
 
         private void output(string format, params object[] args)
@@ -223,7 +245,7 @@ namespace TimeTracker
 
             
 
-            foreach ( var bTuple in _breaks )
+            foreach ( var bTuple in _getBreaks() )
             {
 
                 var breakSpan = ( bTuple.Item2 - bTuple.Item1 ).Duration();
