@@ -405,6 +405,11 @@ namespace TimeTracker
             
 
         }
+
+        private void Button_Click_Clear( object sender, RoutedEventArgs e )
+        {
+            _output.Clear();
+        }
     }
 
     public static class Extensions

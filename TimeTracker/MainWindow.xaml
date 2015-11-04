@@ -14,23 +14,24 @@
 
         </CollectionViewSource>
     </Window.Resources>
-    
-   <Grid>
-       
-       <Grid.RowDefinitions>
-           <RowDefinition Height="Auto" />
-           <RowDefinition Height="*" />
-       </Grid.RowDefinitions>
-        
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
         <ToolBarTray Grid.Row="0">
-        <ToolBar>
-           
+            <ToolBar>
+
                 <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
                 <Button Margin="5,0" Click="Start_Button_Click" Name="StartButton">Start</Button>
                 <Button Click="Stop_Click" IsEnabled="False" Name="StopButton">Stop</Button>
                 <Button Click="Button_Click_Summary" Margin="5,0" Name="SummaryButton">Summary</Button>
-         
-        </ToolBar>
+                <Button Click="Button_Click_Clear" Name="ClearButton" VerticalAlignment="Top">Clear</Button>
+
+            </ToolBar>
         </ToolBarTray>
         <ScrollViewer Grid.Row="1">
 
@@ -63,7 +64,7 @@
                     </tb:TaskbarIcon.ContextMenu>
                 </tb:TaskbarIcon>
 
-              
+
                 <TextBox Margin="0,5,0,0" Grid.Row="1"  MinLines="10" VerticalScrollBarVisibility="Auto" x:Name="_output"></TextBox>
 
                 <GridSplitter HorizontalAlignment="Stretch" Height="3" Grid.Row="2" Background="LightGray"></GridSplitter>
