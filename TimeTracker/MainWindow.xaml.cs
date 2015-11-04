@@ -342,6 +342,11 @@ namespace TimeTracker
 
         private void Add_And_Bill_Click( object sender, RoutedEventArgs e )
         {
+            if ( string.IsNullOrWhiteSpace( newJob.Text ) )
+            {
+                // Do not allow empty strings
+                return;
+            }
             Cats.Add( newJob.Text );
           
             ActionLogTime( newJob.Text );
