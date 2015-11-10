@@ -24,9 +24,9 @@
 
         <ToolBarTray Grid.Row="0">
             <ToolBar>
-
+                <ToggleButton Margin="5,0" Name="UpdateButton" IsChecked="{Binding DoUpdate}">Auto</ToggleButton>
                 <TextBox Width="100" x:Name="startTime" GotFocus="startTime_GotFocus"></TextBox>
-                <Button Margin="5,0" Click="Start_Button_Click" Name="StartButton">Start</Button>
+                <Button Click="Start_Button_Click" Name="StartButton" VerticalAlignment="Bottom">Start</Button>
                 <Button Click="Stop_Click" IsEnabled="False" Name="StopButton">Stop</Button>
                 <Button Click="Button_Click_Summary" Margin="5,0" Name="SummaryButton">Summary</Button>
                 <Button Click="Button_Click_Clear" Name="ClearButton" VerticalAlignment="Top">Clear</Button>

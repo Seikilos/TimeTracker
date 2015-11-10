@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.Xml.XPath;
-
+using TimeTracker.Annotations;
 using Path = System.IO.Path;
 
 namespace TimeTracker
@@ -26,11 +28,28 @@ namespace TimeTracker
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private readonly ITimeProvider _provider;
         private Task _updater;
-        private bool _doNotUpdate;
+
+        public bool DoNotUpdate
+        {
+            get { return _doNotUpdate; }
+            set
+            {
+                if ( value == _doNotUpdate ) return;
+                _doNotUpdate = value;
+                _onPropertyChanged();
+                _onPropertyChanged("DoUpdate");
+            }
+        }
+
+        public bool DoUpdate 
+        {
+            get { return !DoNotUpdate; }
+            set { DoNotUpdate = !value; } 
+        }
 
         public ObservableCollection<string> Cats { get; set; }
 
@@ -51,9 +70,11 @@ namespace TimeTracker
         private StreamWriter _progressFileStream;
         private FileStream _summaryFile;
         private StreamWriter _summaryFileStream;
+        private bool _doNotUpdate;
 
         public MainWindow(ITimeProvider provider)
         {
+
             LogTimeCommand = new DelegateCommand( ActionLogTime );
             _provider = provider;
             DataContext = this;
@@ -98,7 +119,7 @@ namespace TimeTracker
 
                 while ( true )
                 {
-                    if ( _doNotUpdate == false )
+                    if ( DoNotUpdate == false )
                     {
                         startTime.Dispatcher.Invoke( () => startTime.Text = DateTime.Now.ToString( "HH:mm:ss" ) );
                     }
@@ -180,7 +201,7 @@ namespace TimeTracker
 
         private void startTime_GotFocus( object sender, RoutedEventArgs e )
         {
-            _doNotUpdate = true;
+            DoNotUpdate = true;
         }
 
         private void Start_Button_Click( object sender, RoutedEventArgs e )
@@ -188,9 +209,19 @@ namespace TimeTracker
             ( sender as Button ).IsEnabled = false;
             AddButton.IsEnabled = true;
 
-            _progressFile = new FileStream( Path.Combine("Work", DateTime.Parse( startTime.Text ).ToString( "'Work'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create);
+            DateTime startTimeAsDate;
+            if (DateTime.TryParse(startTime.Text, out startTimeAsDate) == false)
+            {
+
+                MessageBox.Show("Could not parse star time. Got typo?");
+                return;
+            }
+           
+
+
+            _progressFile = new FileStream( Path.Combine("Work", startTimeAsDate.ToString( "'Work'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create);
             _progressFileStream = new StreamWriter(_progressFile);
-            _summaryFile = new FileStream( Path.Combine("Work", DateTime.Parse( startTime.Text ).ToString( "'Summary'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create );
+            _summaryFile = new FileStream( Path.Combine("Work", startTimeAsDate.ToString( "'Summary'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create );
             _summaryFileStream = new StreamWriter(_summaryFile);
 
             output( "Work logged to {0}", _progressFile.Name  );
@@ -198,7 +229,7 @@ namespace TimeTracker
 
 
             _work = new List< Tuple< string, DateTime > >();
-            _work.Add( Tuple.Create( "Start",  DateTime.Parse( startTime.Text ) ) );
+            _work.Add( Tuple.Create( "Start",  startTimeAsDate ) );
          
 
             output( "Starting at "  + _work[0].Item2);
@@ -207,15 +238,27 @@ namespace TimeTracker
 
 
 
-            _doNotUpdate = true;
-            startTime.IsEnabled = false;
+            DoNotUpdate = true;
             list.IsEnabled = true;
             StopButton.IsEnabled = true;
         }
 
         private void ActionLogTime( object workName )
         {
-            _work.Add( Tuple.Create( workName.ToString(), _provider.GetCurrentTime()) );
+            
+
+            DateTime time;
+            try
+            {
+                time = _provider.GetCurrentTime();
+            }
+            catch ( Exception)
+            {
+                MessageBox.Show("Could not obtain time from text");
+                return;
+            }
+
+            _work.Add( Tuple.Create( workName.ToString(),time) );
 
             _addLast();
             
@@ -404,8 +447,7 @@ namespace TimeTracker
             StopButton.IsEnabled = false;
             SummaryButton.IsEnabled = false;
 
-            _doNotUpdate = false;
-            startTime.IsEnabled = true;
+            DoNotUpdate = false;
             list.IsEnabled = false;
             
 
@@ -414,6 +456,15 @@ namespace TimeTracker
         private void Button_Click_Clear( object sender, RoutedEventArgs e )
         {
             _output.Clear();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void _onPropertyChanged( [CallerMemberName] string propertyName = null )
+        {
+            var handler = PropertyChanged;
+            if ( handler != null ) handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

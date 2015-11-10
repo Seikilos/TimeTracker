@@ -21,9 +21,13 @@ namespace TimeTracker
 #if DEBUG
             var provider = new DummyCurrentTimeProvider();
 #else
-            var provider = new StandardCurrentTimeProvider();
+            //var provider = new StandardCurrentTimeProvider();
+            var provider = new TimeFromTextProvider();
 #endif
             var m = new MainWindow(provider);
+
+            provider.TextBox = m.startTime;
+
             m.Show();
 
         }
