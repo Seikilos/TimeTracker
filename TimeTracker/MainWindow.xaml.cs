@@ -206,9 +206,8 @@ namespace TimeTracker
 
         private void Start_Button_Click( object sender, RoutedEventArgs e )
         {
-            ( sender as Button ).IsEnabled = false;
-            AddButton.IsEnabled = true;
 
+            
             DateTime startTimeAsDate;
             if (DateTime.TryParse(startTime.Text, out startTimeAsDate) == false)
             {
@@ -216,6 +215,10 @@ namespace TimeTracker
                 MessageBox.Show("Could not parse star time. Got typo?");
                 return;
             }
+
+            ( sender as Button ).IsEnabled = false;
+            AddButton.IsEnabled = true;
+
            
 
 
@@ -238,7 +241,7 @@ namespace TimeTracker
 
 
 
-            DoNotUpdate = true;
+            DoNotUpdate = false;
             list.IsEnabled = true;
             StopButton.IsEnabled = true;
         }
@@ -261,7 +264,8 @@ namespace TimeTracker
             _work.Add( Tuple.Create( workName.ToString(),time) );
 
             _addLast();
-            
+            DoUpdate = true;
+
         }
 
         private void _addLast()
