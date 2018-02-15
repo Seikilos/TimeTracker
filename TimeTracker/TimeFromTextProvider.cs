@@ -11,5 +11,10 @@ namespace TimeTracker
         {
             return DateTime.Parse(TextBox.Text);
         }
+
+        public void SetCurrentStartTime( TextBox starttimeBox )
+        {
+            TextBox = starttimeBox;
+        }
     }
 }

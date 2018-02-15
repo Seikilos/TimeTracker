@@ -41,14 +41,14 @@ namespace TimeTracker
                 if ( value == _doNotUpdate ) return;
                 _doNotUpdate = value;
                 _onPropertyChanged();
-                _onPropertyChanged("DoUpdate");
+                _onPropertyChanged( "DoUpdate" );
             }
         }
 
-        public bool DoUpdate 
+        public bool DoUpdate
         {
             get { return !DoNotUpdate; }
-            set { DoNotUpdate = !value; } 
+            set { DoNotUpdate = !value; }
         }
 
         public ObservableCollection<string> Cats { get; set; }
@@ -56,13 +56,13 @@ namespace TimeTracker
         private List< Tuple< string, DateTime > > _work;
 
         public DateTime StartDate;
-        
+
 
         /// <summary>
         /// Keeps xml nodes which are transformed to date to ensure date time is always 
         /// the proper day so that the app can be used continuously
         /// </summary>
-        private List< XElement > _breakElements; 
+        private List< XElement > _breakElements;
 
         public ICommand LogTimeCommand { get; set; }
 
@@ -72,7 +72,9 @@ namespace TimeTracker
         private StreamWriter _summaryFileStream;
         private bool _doNotUpdate;
 
-        public MainWindow(ITimeProvider provider)
+        private const String ConfigName = "config.xml";
+
+        public MainWindow( ITimeProvider provider )
         {
 
             LogTimeCommand = new DelegateCommand( ActionLogTime );
@@ -81,18 +83,18 @@ namespace TimeTracker
 
             Directory.CreateDirectory( "Work" );
 
-            var doc = XDocument.Load( "config.xml" );
-            _breakElements = doc.XPathSelectElements("//Break").ToList();
+            var doc = XDocument.Load( ConfigName );
+            _breakElements = doc.XPathSelectElements( "//Break" ).ToList();
 
-         
-            var catList = doc.XPathSelectElements("//Category").Select(e => e.Value).ToList();
-            Cats = new ObservableCollection< string >(catList);
-            
+
+            var catList = doc.XPathSelectElements( "//Category" ).Select( e => e.Value ).ToList();
+            Cats = new ObservableCollection<string>( catList );
+
 #if DEBUG
 
             for ( var i = 0; i < 10; ++i )
             {
-                Cats.Add( "Project "+i );
+                Cats.Add( "Project " + i );
             }
 #endif
 
@@ -108,10 +110,10 @@ namespace TimeTracker
 
 
             // Disable updater for now, fake time
-           /* {
-                startTime.Text = "8:00";
-                _doNotUpdate = true;
-            }*/
+            /* {
+                 startTime.Text = "8:00";
+                 _doNotUpdate = true;
+             }*/
 
             //_doNotUpdate = false;
             _updater = Task.Run( () =>
@@ -124,7 +126,7 @@ namespace TimeTracker
                         startTime.Dispatcher.Invoke( () => startTime.Text = DateTime.Now.ToString( "HH:mm:ss" ) );
                     }
                     //startTime.Dispatcher.Invoke(() =>  startTime.Text = SystemClock.Instance.Now.ToString("HH:mm", null));
-                   
+
 
 
                     Thread.Sleep( 1000 );
@@ -137,7 +139,7 @@ namespace TimeTracker
         /// Performs a non-cached conversion from breaks to current date to avoid stalled dates for next days
         /// </summary>
         /// <returns></returns>
-        private List<Tuple<DateTime, DateTime> > _getBreaks()
+        private List<Tuple<DateTime, DateTime>> _getBreaks()
         {
             return _breakElements.Select( e => Tuple.Create(
               DateTime.Parse( e.Attribute( "Start" ).Value ),
@@ -149,13 +151,13 @@ namespace TimeTracker
         {
             foreach ( var b in _getBreaks() )
             {
-                output(string.Format("Break from {0} ended at {1}", b.Item1, b.Item2));
+                output( string.Format( "Break from {0} ended at {1}", b.Item1, b.Item2 ) );
             }
         }
 
-        private void output(string format, params object[] args)
+        private void output( string format, params object[] args )
         {
-            _output.AppendNewLine(format, args);
+            _output.AppendNewLine( format, args );
             if ( _progressFileStream != null )
             {
                 _progressFileStream.WriteLine( format, args );
@@ -173,18 +175,18 @@ namespace TimeTracker
             }
         }
 
-        private void summaryDivide(  )
+        private void summaryDivide()
         {
 
             _output.Divide();
             _summaryFileStream.WriteLine( "----------------------" );
         }
 
-        private void outputDivide(  )
+        private void outputDivide()
         {
             _output.Divide();
-            if(_progressFileStream != null)
-            { 
+            if ( _progressFileStream != null )
+            {
                 _progressFileStream.WriteLine( "----------------------" );
             }
         }
@@ -197,7 +199,7 @@ namespace TimeTracker
             }
         }
 
-      
+
 
         private void startTime_GotFocus( object sender, RoutedEventArgs e )
         {
@@ -207,35 +209,35 @@ namespace TimeTracker
         private void Start_Button_Click( object sender, RoutedEventArgs e )
         {
 
-            
+
             DateTime startTimeAsDate;
-            if (DateTime.TryParse(startTime.Text, out startTimeAsDate) == false)
+            if ( DateTime.TryParse( startTime.Text, out startTimeAsDate ) == false )
             {
 
-                MessageBox.Show("Could not parse star time. Got typo?");
+                MessageBox.Show( "Could not parse star time. Got typo?" );
                 return;
             }
 
             ( sender as Button ).IsEnabled = false;
             AddButton.IsEnabled = true;
 
-           
 
 
-            _progressFile = new FileStream( Path.Combine("Work", startTimeAsDate.ToString( "'Work'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create);
-            _progressFileStream = new StreamWriter(_progressFile);
-            _summaryFile = new FileStream( Path.Combine("Work", startTimeAsDate.ToString( "'Summary'_yyyy_MM_dd_HH_mm_ss'.log'" )), FileMode.Create );
-            _summaryFileStream = new StreamWriter(_summaryFile);
 
-            output( "Work logged to {0}", _progressFile.Name  );
-            output( "Summary logged to {0}", _summaryFile.Name  );
+            _progressFile = new FileStream( Path.Combine( "Work", startTimeAsDate.ToString( "'Work'_yyyy_MM_dd_HH_mm_ss'.log'" ) ), FileMode.Create );
+            _progressFileStream = new StreamWriter( _progressFile );
+            _summaryFile = new FileStream( Path.Combine( "Work", startTimeAsDate.ToString( "'Summary'_yyyy_MM_dd_HH_mm_ss'.log'" ) ), FileMode.Create );
+            _summaryFileStream = new StreamWriter( _summaryFile );
+
+            output( "Work logged to {0}", _progressFile.Name );
+            output( "Summary logged to {0}", _summaryFile.Name );
 
 
-            _work = new List< Tuple< string, DateTime > >();
-            _work.Add( Tuple.Create( "Start",  startTimeAsDate ) );
-         
+            _work = new List<Tuple<string, DateTime>>();
+            _work.Add( Tuple.Create( "Start", startTimeAsDate ) );
 
-            output( "Starting at "  + _work[0].Item2);
+
+            output( "Starting at " + _work[ 0 ].Item2 );
 
             SummaryButton.IsEnabled = true;
 
@@ -248,20 +250,20 @@ namespace TimeTracker
 
         private void ActionLogTime( object workName )
         {
-            
+
 
             DateTime time;
             try
             {
                 time = _provider.GetCurrentTime();
             }
-            catch ( Exception)
+            catch ( Exception )
             {
-                MessageBox.Show("Could not obtain time from text");
+                MessageBox.Show( "Could not obtain time from text" );
                 return;
             }
 
-            _work.Add( Tuple.Create( workName.ToString(),time) );
+            _work.Add( Tuple.Create( workName.ToString(), time ) );
 
             _addLast();
             DoUpdate = true;
@@ -278,19 +280,19 @@ namespace TimeTracker
 
             var hadBreak = _hadBreak( oneBeforeLast.Item2, last.Item2 );
 
-          
-            ts = ts.Subtract( hadBreak );
-            
 
-            output( "{0} to {1}, total {2}{3}", last.Item1, last.Item2,ts.ToString(@"hh\:mm\:ss"), (hadBreak != TimeSpan.Zero? string.Format(", subtracted {0} break", hadBreak.ToString(@"hh\:mm\:ss")):"") );
+            ts = ts.Subtract( hadBreak );
+
+
+            output( "{0} to {1}, total {2}{3}", last.Item1, last.Item2, ts.ToString( @"hh\:mm\:ss" ), ( hadBreak != TimeSpan.Zero ? string.Format( ", subtracted {0} break", hadBreak.ToString( @"hh\:mm\:ss" ) ) : "" ) );
         }
 
         private TimeSpan _hadBreak( DateTime startTime, DateTime endTime )
         {
-            
+
             var t = new TimeSpan();
 
-            
+
 
             foreach ( var bTuple in _getBreaks() )
             {
@@ -313,7 +315,7 @@ namespace TimeTracker
                     t = t.Add( breakSpan );
 
                 }
-                else if( startedBefore) // implies && !endedAfter)
+                else if ( startedBefore ) // implies && !endedAfter)
                 {
                     t = t.Add( ( endTime - bTuple.Item1 ).Duration() );
 
@@ -321,7 +323,7 @@ namespace TimeTracker
                 else if ( endedAfter ) // implies !startedBefore
                 {
                     t = t.Add( ( bTuple.Item2 - startTime ).Duration() );
-                    
+
                 }
                 else // implies ( !startedBefore && !endedAfter )
                 {
@@ -329,7 +331,7 @@ namespace TimeTracker
                 }
 
 
-               
+
             }
 
             return t;
@@ -354,9 +356,9 @@ namespace TimeTracker
 
             var workTime = _hadBreak( _work.First().Item2, _work.Last().Item2 );
 
-            summary( "Ended at {0}, worked {1}", _work.Last().Item2, (_work.Last().Item2-_work.First().Item2 ).Duration() - workTime);
+            summary( "Ended at {0}, worked {1}", _work.Last().Item2, ( _work.Last().Item2 - _work.First().Item2 ).Duration() - workTime );
 
-            var jobs = new Dictionary< string, TimeSpan >();
+            var jobs = new Dictionary<string, TimeSpan>();
 
             for ( var i = 1; i < _work.Count; ++i )
             {
@@ -365,7 +367,7 @@ namespace TimeTracker
 
                 if ( jobs.ContainsKey( current.Item1 ) == false )
                 {
-                    jobs[current.Item1] = TimeSpan.Zero;
+                    jobs[ current.Item1 ] = TimeSpan.Zero;
                 }
 
                 var breaks = _hadBreak( before.Item2, current.Item2 );
@@ -383,7 +385,7 @@ namespace TimeTracker
             }
 
 
-           summaryDivide();
+            summaryDivide();
 
         }
 
@@ -395,7 +397,9 @@ namespace TimeTracker
                 return;
             }
             Cats.Add( newJob.Text );
-          
+
+            _appendCategoryToConfig( newJob.Text );
+
             ActionLogTime( newJob.Text );
 
             list.SelectedIndex = list.Items.Count - 1;
@@ -404,11 +408,36 @@ namespace TimeTracker
 
         }
 
+        private void _appendCategoryToConfig( string newJobText )
+        {
+            var doc = XDocument.Load( ConfigName );
+
+            try
+            {
+                var cat = doc.XPathSelectElement( "//Category/text()" );
+
+
+
+            }
+            catch ( Exception e )
+            {
+
+
+                var allCats = doc.XPathSelectElement( "//Categories" );
+                allCats.Add( new XElement( "Category", newJobText ) );
+
+
+                doc.Save( ConfigName );
+            }
+
+
+        }
+
         private void Real_Exit( object sender, RoutedEventArgs e )
         {
 
             var res = MessageBox.Show( this, "Are you sure?", "Really exit?", MessageBoxButton.YesNo );
- 
+
             if ( res == MessageBoxResult.No )
             {
                 return;
@@ -426,7 +455,7 @@ namespace TimeTracker
 
         private void Open_Click( object sender, RoutedEventArgs e )
         {
-           Show();
+            Show();
         }
 
         private void myNotifyIcon_TrayMouseDoubleClick( object sender, RoutedEventArgs e )
@@ -438,14 +467,14 @@ namespace TimeTracker
         private void Stop_Click( object sender, RoutedEventArgs e )
         {
 
-            Button_Click_Summary(this, e);
+            Button_Click_Summary( this, e );
             _progressFileStream.Dispose();
             _summaryFile.Dispose();
             _progressFileStream = null;
             _summaryFile = null;
 
 
-            output("Stopped");
+            output( "Stopped" );
             outputDivide();
             StartButton.IsEnabled = true;
             StopButton.IsEnabled = false;
@@ -453,7 +482,7 @@ namespace TimeTracker
 
             DoNotUpdate = false;
             list.IsEnabled = false;
-            
+
 
         }
 
@@ -468,7 +497,7 @@ namespace TimeTracker
         protected virtual void _onPropertyChanged( [CallerMemberName] string propertyName = null )
         {
             var handler = PropertyChanged;
-            if ( handler != null ) handler(this, new PropertyChangedEventArgs(propertyName));
+            if ( handler != null ) handler( this, new PropertyChangedEventArgs( propertyName ) );
         }
     }
 
@@ -480,7 +509,7 @@ namespace TimeTracker
 
             tb.ScrollToEnd();
 
-            
+
         }
 
         public static void Divide( this TextBoxBase tb )

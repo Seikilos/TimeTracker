@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Controls;
 
 namespace TimeTracker
 {
@@ -19,6 +20,11 @@ namespace TimeTracker
             _start = _start.AddHours( 1 );
 
             return copy;
+        }
+
+        public void SetCurrentStartTime( TextBox starttimeBox )
+        {
+            
         }
     }
 }

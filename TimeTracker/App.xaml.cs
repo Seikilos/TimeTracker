@@ -26,7 +26,8 @@ namespace TimeTracker
 #endif
             var m = new MainWindow(provider);
 
-            provider.TextBox = m.startTime;
+            provider.SetCurrentStartTime(m.startTime);
+            //provider.TextBox = m.startTime;
 
             m.Show();
 

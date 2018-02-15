@@ -108,8 +108,8 @@
   <ItemGroup>
     <None Include="..\Data\config.xml">
       <Link>config.xml</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
